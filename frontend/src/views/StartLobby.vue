@@ -22,8 +22,8 @@
           placeholder="9"
           v-model="amountOfHoles"
           class="mt-3"
-          min="0"
-          max="50"
+          :min="0"
+          :max="50"
         />
         <Button
           v-if="settingsOk"
@@ -70,7 +70,7 @@ export default {
   },
   data() {
     return {
-      amountOfHoles: 0,
+      amountOfHoles: "0",
     };
   },
   computed: {
