@@ -22,9 +22,6 @@ export default createStore({
       name: '',
       holes: 0,
     },
-    helpers: {
-      currentlyEditingScoreNode: false,
-    },
     language: {
       currentLocale: '',
     }
@@ -40,9 +37,6 @@ export default createStore({
     },
     getCurrentLocale(state, _) {
       return toRaw(state.language.currentLocale);
-    },
-    getCurrentlyEditingScoreNode(state, _) {
-      return state.helpers.currentlyEditingScoreNode;
     },
     getGameID(state, _) {
       return state.currentGame.gameId;
@@ -71,9 +65,6 @@ export default createStore({
     }
   },
   mutations: {
-    setCurrentlyEditingScoreNode(state, status) {
-      state.helpers.currentlyEditingScoreNode = status;
-    },
     addPlayers(state, playerObj) {
       state.players.push(playerObj);
     },

@@ -75,7 +75,6 @@
 <script>
 import ScoreNode from "@/components/ScoreNode.vue";
 import TotalScore from "@/components/TotalScore.vue";
-import axios from "axios";
 
 export default {
   components: {
@@ -99,55 +98,23 @@ export default {
       console.log(event)
       console.log("Successfully connected to the echo websocket server...")
     }
-
-    
-
-    // this uploads the score:
-    // this.$store.dispatch("syncScore");
-
-
-    let routeStart = this.currentRouteName.substring(0,4);
-    while (routeStart == "game") {
-      // ... websockify
-     
-      await this.Sleep(12500);
-      if (!this.currentlyEditingScoreNode) {
-        // this.updateScore();
-      }
-      routeStart = this.currentRouteName.substring(0,4);
-    }
   },
   methods: {
     Sleep(milliseconds) {
       return new Promise((resolve) => setTimeout(resolve, milliseconds));
     },
-    sendMessage: function(message) {
-      console.log("Trying to websocketsend " + message)
-      this.connection.send(message);
-    },
-    updateScore() {
-      axios
-        .get(process.env.VUE_APP_BACKEND_DOMAIN + "/api/game/" + this.gameId)
-        .then((res) => {
-          if (res.data == null) {
-            this.gameIdFeedback = "This Game ID is unknown";
-          } else {
-            let score = res.data.scores;
-            // save score to store :)
-            this.$store.commit("updateScore", score);
-          }
-        });
+    sendMessage() {
+      console.log("Trying to websocketsend")
+      const message = {
+        gameId: this.gameId,
+        score: this.score,
+      }
+      this.connection.send(JSON.stringify(message));
     },
   },
   computed: {
     score() {
       return this.$store.state.currentGame.scores;
-    },
-    currentRouteName() {
-      return this.$route.name;
-    },
-    currentlyEditingScoreNode() {
-      return this.$store.getters.getCurrentlyEditingScoreNode;
     },
     playerNames() {
       console.log(this.$store.state.currentGame.playerNames);

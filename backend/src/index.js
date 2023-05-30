@@ -38,26 +38,66 @@ const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const { Prisma } = require('@prisma/client');
 const cors = require('cors');
+const { WebSocket } = require("ws");
+const http = require("http");
+
 
 const client = new PrismaClient();
 const app = express();
-const expressWs = require('express-ws')(app)
+const server = http.createServer(app);
+
+const wss = new WebSocket.Server({ server });
 
 app.use(cors())
 app.use(express.json())
 
-app.use(function (req, res, next) {
-  console.log('middleware');
-  req.testing = 'testing';
-  return next();
+let allWsConns = []; // websocket tmp storage
+
+
+// update message fomrat
+wss.on('connection', (ws, req) => {
+  const currentGameID = String(req.url).substring(6);
+  console.log("Websocket GameID:", currentGameID);
+
+  const customWSObj = {
+    gameID: currentGameID,
+    ws
+  };
+
+  //connection is up, let's add a simple simple event
+  allWsConns.push(customWSObj);
+
+  ws.on('message', (rawData) => {
+      const data = JSON.parse(rawData);
+      //log the received message and send it back to the client
+      console.log('received: %s', data);
+
+      // loop through all potential communication partners
+      // drop the ones that dont want to listen:
+      for (let i = 0; i < allWsConns.length; i++){
+        const conn = allWsConns[i].ws; // for readability
+
+        if (conn.readyState === WebSocket.OPEN) {
+          // ...
+          if (allWsConns[i].gameID == currentGameID) {
+            conn.send(`Hello, you sent -> ${JSON.stringify(data)}`);
+          }
+          else {
+            conn.send("Someone received a message, that was not meant for you.......");
+          }
+        }
+        else {
+          // drop it like it's hot
+          allWsConns.splice(i, 1);
+        }
+      }
+      
+  });
+
+  //send immediatly a feedback to the incoming connection    
+  ws.send('Hi there, I am a WebSocket server');
 });
 
-app.ws('/', function(ws, req) {
-  ws.on('message', function(msg) {
-    console.log(msg);
-  });
-  console.log('socket', req.testing);
-});
 
 app.post(`/api/signup`, async (req, res) => {
   const { name, email } = req.body
@@ -238,7 +278,7 @@ app.get('/api/users', async (req, res) => {
   res.json(users);
 });
 
-const server = app.listen(process.env.PORT || PORT, () =>
+server.listen(process.env.PORT || PORT, () =>
   console.log(`
 🚀 Server ready at: http://localhost:3000`),
 )
