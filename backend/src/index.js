@@ -46,6 +46,19 @@ const expressWs = require('express-ws')(app)
 app.use(cors())
 app.use(express.json())
 
+app.use(function (req, res, next) {
+  console.log('middleware');
+  req.testing = 'testing';
+  return next();
+});
+
+app.ws('/', function(ws, req) {
+  ws.on('message', function(msg) {
+    console.log(msg);
+  });
+  console.log('socket', req.testing);
+});
+
 app.post(`/api/signup`, async (req, res) => {
   const { name, email } = req.body
 
@@ -76,14 +89,16 @@ app.post(`/api/signup`, async (req, res) => {
   }
 });
 
-app.ws('/api', async(req, res) => {
-  ws.on('message', function(msg) {
-    ws.send(msg);
-  });
-  // const { gameId } = req.params;
-  // const game = await getGameInfo(gameId);
-  // res.json(game);
-});
+// app.ws('/api/game/:gameId', async(req, res) => {
+//   console.log("eehh");
+//   ws.on('message', function(msg) {
+//     console.log(msg)
+//     ws.send(msg);
+//   });
+//   // const { gameId } = req.params;
+//   // const game = await getGameInfo(gameId);
+//   // res.json(game);
+// });
 
 app.post('/api/course', async (req, res) => {
   const { name, holes } = req.body;

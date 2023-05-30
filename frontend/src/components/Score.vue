@@ -68,6 +68,7 @@
         :playerName="playerName"
       />
     </div>
+    <button @click="sendMessage('OMG ES GEEEEHT! ')">WEBSOCKET ACTION</button>
   </div>
 </template>
 
@@ -88,7 +89,7 @@ export default {
   },
   async created() {
     console.log("Score aufgerufen");
-    this.connection = new WebSocket("wss://192.168.0.199:3000/", 'echo-protocol');
+    this.connection = new WebSocket("ws://192.168.0.199:3000/game/" + this.gameId);
 
     this.connection.onmessage = function(event) {
       console.log(event);
@@ -119,6 +120,10 @@ export default {
   methods: {
     Sleep(milliseconds) {
       return new Promise((resolve) => setTimeout(resolve, milliseconds));
+    },
+    sendMessage: function(message) {
+      console.log("Trying to websocketsend " + message)
+      this.connection.send(message);
     },
     updateScore() {
       axios
