@@ -1,0 +1,6 @@
+{
+  "appId": "creative.money",
+  "appName": "Discgolf Tracker",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
