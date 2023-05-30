@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="min-h-screen">
+  <div class="min-h-screen">
+    <div>
       <Navbar />
       <router-view />
     </div>
