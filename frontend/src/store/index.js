@@ -168,10 +168,10 @@ export default createStore({
     }
   },
   actions: {
-    syncScore(context) {
+    syncScore(store) {
       console.log("Syncing Scores...");
-      const score = toRaw(context.getters.getScore);
-      const gameId = toRaw(context.getters.getGameID);
+      const score = toRaw(store.getters.getScore);
+      const gameId = toRaw(store.getters.getGameID);
       const updateURL = process.env.VUE_APP_BACKEND_DOMAIN + '/api/game/' + gameId + '/score'
       axios.put(updateURL, score);
     }
