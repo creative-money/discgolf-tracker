@@ -54,10 +54,15 @@ app.use(express.json())
 let allWsConns = []; // websocket tmp storage
 
 
-// update message fomrat
-wss.on('connection', (ws, req) => {
+// update message format
+wss.on('connection', async (ws, req) => {
   const currentGameID = String(req.url).substring(6);
   console.log("Websocket GameID:", currentGameID);
+
+  if (!currentGameID || currentGameID == undefined) {
+    console.log("Cant deal with this conn because it's missing an ID");
+    return;
+  }
 
   const customWSObj = {
     gameID: currentGameID,
@@ -67,10 +72,40 @@ wss.on('connection', (ws, req) => {
   //connection is up, let's add a simple simple event
   allWsConns.push(customWSObj);
 
-  ws.on('message', (rawData) => {
+  // send latest state of game to client
+  const game = await client.game.findUnique({
+    where: {
+      name: currentGameID
+    }
+  });
+
+  if (!game) {
+    console.log("Kein Game gefunden");
+    return;
+  }
+
+  ws.send(JSON.stringify(game));
+
+  ws.on('message', async (rawData) => {
       const data = JSON.parse(rawData);
       //log the received message and send it back to the client
       console.log('received: %s', data);
+
+      // save updated state of score to db
+      const score = data.score;
+
+      if (score == undefined) {
+        return conn.send("Missing score object");
+      }
+
+      const updatedGame = await client.game.update({
+        where: {
+          name: currentGameID
+        },
+        data: {
+          scores: score,
+        }
+      });
 
       // loop through all potential communication partners
       // drop the ones that dont want to listen:
@@ -78,12 +113,10 @@ wss.on('connection', (ws, req) => {
         const conn = allWsConns[i].ws; // for readability
 
         if (conn.readyState === WebSocket.OPEN) {
-          // ...
+
           if (allWsConns[i].gameID == currentGameID) {
-            conn.send(`Hello, you sent -> ${JSON.stringify(data)}`);
-          }
-          else {
-            conn.send("Someone received a message, that was not meant for you.......");
+            // save info to db and send answer to client
+            return conn.send(JSON.stringify(updatedGame));
           }
         }
         else {

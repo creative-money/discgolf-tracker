@@ -29,7 +29,6 @@
 import DefaultContainer from "@/components/DefaultContainer.vue";
 import Score from "@/components/Score.vue";
 import Header from "@/components/Header.vue";
-import axios from "axios";
 import QrCodeVue from "qrcode.vue";
 import Loading from "@/components/Loading.vue";
 
@@ -65,20 +64,6 @@ export default {
       } else {
         // end game that was present before...
         this.$store.commit("endGame");
-        axios.get(process.env.VUE_APP_BACKEND_DOMAIN + "/api/game/" + gameId).then((res) => {
-          if (res.data == null) {
-            this.gameIdFeedback = "This Game ID is unknown";
-          } else {
-            let score = res.data.scores;
-
-            console.log(score);
-            // save score to store :)
-            this.$store.commit("updateScore", score);
-
-            // start game...
-            this.$store.commit("loadGame", res.data);
-          }
-        });
       }
     },
   },
