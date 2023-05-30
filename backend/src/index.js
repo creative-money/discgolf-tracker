@@ -41,32 +41,10 @@ const cors = require('cors');
 
 const client = new PrismaClient();
 const app = express();
-
-const http = require('http');
-const serverHttp = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(serverHttp);
-
+const expressWs = require('express-ws')(app)
 
 app.use(cors())
 app.use(express.json())
-
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-});
-
-io.on('connection', (socket) => {
-  socket.on('chat message', (msg) => {
-    console.log('message: ' + msg);
-  });
-});
-
-io.emit('some event', { someProperty: 'some value', otherProperty: 'other value' }); // This will emit the event to all connected sockets
-
-
-serverHttp.listen(4000, () => {
-  console.log('listening on *:3000');
-});
 
 app.post(`/api/signup`, async (req, res) => {
   const { name, email } = req.body
@@ -98,10 +76,13 @@ app.post(`/api/signup`, async (req, res) => {
   }
 });
 
-app.get('/api/game/:gameId', async (req, res) => {
-  const { gameId } = req.params;
-  const game = await getGameInfo(gameId);
-  res.json(game);
+app.ws('/api', async(req, res) => {
+  ws.on('message', function(msg) {
+    ws.send(msg);
+  });
+  // const { gameId } = req.params;
+  // const game = await getGameInfo(gameId);
+  // res.json(game);
 });
 
 app.post('/api/course', async (req, res) => {

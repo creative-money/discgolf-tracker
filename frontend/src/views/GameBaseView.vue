@@ -11,7 +11,7 @@
         <p>{{ $t("game.qrHelp") }}</p>
         <div class="flex justify-center my-1">
           <QrCodeVue
-            :value="'https://www.discgolf-tracker.com/game/' + gameId"
+            :value="qrCodeValue"
           />
         </div>
         <p>GameID: {{ gameId }}</p>
@@ -42,6 +42,9 @@ export default {
     Loading,
   },
   computed: {
+    qrCodeValue() {
+      return process.env.VUE_APP_FRONTEND_DOMAIN + "/game/" + this.gameId;
+    },
     holes() {
       return JSON.parse(JSON.stringify(this.$store.state.currentGame));
     },

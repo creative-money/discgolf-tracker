@@ -81,16 +81,37 @@ export default {
     ScoreNode,
     TotalScore,
   },
+  data() {
+    return {
+      connection: null,
+    }
+  },
   async created() {
     console.log("Score aufgerufen");
+    this.connection = new WebSocket("wss://192.168.0.199:3000/", 'echo-protocol');
+
+    this.connection.onmessage = function(event) {
+      console.log(event);
+    }
+
+    this.connection.onopen = function(event) {
+      console.log(event)
+      console.log("Successfully connected to the echo websocket server...")
+    }
+
+    
 
     // this uploads the score:
-    this.$store.dispatch("syncScore");
+    // this.$store.dispatch("syncScore");
+
+
     let routeStart = this.currentRouteName.substring(0,4);
     while (routeStart == "game") {
-      await this.Sleep(1250);
+      // ... websockify
+     
+      await this.Sleep(12500);
       if (!this.currentlyEditingScoreNode) {
-        this.updateScore();
+        // this.updateScore();
       }
       routeStart = this.currentRouteName.substring(0,4);
     }
