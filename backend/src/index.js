@@ -88,22 +88,45 @@ wss.on('connection', async (ws, req) => {
 
   ws.on('message', async (rawData) => {
       const data = JSON.parse(rawData);
-      //log the received message and send it back to the client
-      console.log('received: %s', data);
 
       // save updated state of score to db
-      const score = data.score;
-
-      if (score == undefined) {
-        return conn.send("Missing score object");
+      if (data.score == undefined) {
+        console.log("Missing score object");
+        return;
       }
 
-      const updatedGame = await client.game.update({
+      if (data.version == undefined) {
+        console.log("Unknown Version of Score");
+        return;
+      }
+
+      // check if the incoming version seems up to date
+
+
+      const updatedGameObj = await client.game.updateMany({
         where: {
-          name: currentGameID
+          name: currentGameID,
+          scoreVersion: {
+            lte: Number(data.version)
+          }
         },
         data: {
-          scores: score,
+          scores: data.score,
+          scoreVersion: Number(Number(data.version) + 1)
+        }
+      });
+
+      if (updatedGameObj.count == 0) {
+        console.log("Not updated: " + Number(data.version));
+      }
+      else {
+        console.log("Game was updated: " + Number(data.version));
+      }
+
+
+      const updatedGame = await client.game.findUnique({
+        where: {
+          name: currentGameID
         }
       });
 
