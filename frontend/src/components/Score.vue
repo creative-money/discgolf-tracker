@@ -68,7 +68,6 @@
         :playerName="playerName"
       />
     </div>
-    <button @click="sendMessage('OMG ES GEEEEHT! ')">WEBSOCKET ACTION</button>
   </div>
 </template>
 
@@ -93,14 +92,6 @@ export default {
   methods: {
     Sleep(milliseconds) {
       return new Promise((resolve) => setTimeout(resolve, milliseconds));
-    },
-    sendMessage() {
-      console.log("Trying to websocketsend")
-      const message = {
-        gameId: this.gameId,
-        score: this.score,
-      }
-      this.connection.send(JSON.stringify(message));
     },
   },
   computed: {
