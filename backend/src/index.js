@@ -49,10 +49,17 @@ const app = express();
 let server;
 // depending on ssl situation, host accordingly
 if (process.env.CERT_FILE && process.env.PEM_FILE) {
-  server = https.createServer({
-    key: fs.readFileSync(process.env.PEM_FILE),
-    cert: fs.readFileSync(process.env.CERT_FILE)
-  }, app);
+  try {
+    server = https.createServer({
+      key: fs.readFileSync(process.env.PEM_FILE),
+      cert: fs.readFileSync(process.env.CERT_FILE)
+    }, app);
+  }
+  catch(e) {
+    console.log(e);
+    console.log("SSL tried but did not work... trying to start http server");
+    server = http.createServer(app);
+  }
 }
 else {
   server = http.createServer(app);
