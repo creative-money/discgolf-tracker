@@ -88,15 +88,7 @@ export default {
     }
   },
   async created() {
-    console.log("Score aufgerufen");
-    this.connection = new WebSocket("ws://192.168.0.185:3000/game/" + this.gameId);
-
-    this.connection.onmessage = this.incomingMessage(event)
-
-    this.connection.onopen = function(event) {
-      console.log(event)
-      console.log("Successfully connected to the echo websocket server...")
-    }
+    this.$store.dispatch("createWSConn");
   },
   methods: {
     Sleep(milliseconds) {
@@ -110,15 +102,10 @@ export default {
       }
       this.connection.send(JSON.stringify(message));
     },
-    incomingMessage(event){
-      console.log('HALLOOOO ',event);
-      let x = JSON.parse(event.target.response)
-      console.log('THE X', x)
-      this.$store.commit("updateScore", x.scores)
-    }
   },
   computed: {
     score() {
+      console.log("Scores:",this.$store.state.currentGame.scores);
       return this.$store.state.currentGame.scores;
     },
     playerNames() {

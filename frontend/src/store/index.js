@@ -13,6 +13,7 @@ export default createStore({
       holes: 0,
       name: "Klassiker"
     },
+    connection: null,
     currentGame: {
       loaded: false,
       running: false,
@@ -45,23 +46,32 @@ export default createStore({
       return state.currentGame.scores;
     },
     getTotalForPlayer: (state) => (playerName) => {
-      let totalScore = 0;
-      state.currentGame.scores.forEach(row => {
-        row.forEach(column => {
-          if (column.player.name == playerName) {
-            if (column.score != null) {
-              totalScore += parseInt(column.score);
+      try {
+        let totalScore = 0;
+        state.currentGame.scores.forEach(row => {
+          row.forEach(column => {
+            if (column.player.name == playerName) {
+              if (column.score != null) {
+                totalScore += parseInt(column.score);
+              }
             }
-          }
+          });
         });
-      });
-      return totalScore;
+        return totalScore;
+      }
+      catch(e) {
+        console.log(e);
+        console.log("Could not calc total score");
+      }
     },
     hasActiveGame(state, _) {
       return state.currentGame.running;
     },
     gameLoaded(state, _) {
       return state.currentGame.loaded;
+    },
+    getConnection(state) {
+      return state.connection;
     }
   },
   mutations: {
@@ -73,6 +83,10 @@ export default createStore({
     },
     setHolesNumber(state, n) {
       state.game.holes = n;
+    },
+    setGameId(state, id) {
+      console.log("Setting GameID:", id);
+      state.currentGame.gameId = id;
     },
     async startGame(state, _) {
       state.currentGame.running = true;
@@ -134,6 +148,9 @@ export default createStore({
     updateScore(state, newScore) {
       state.currentGame.scores = newScore;
     },
+    setConnection(state, conn) {
+      state.connection = conn
+    },
     loadGame(state, data) {
       state.currentGame.loaded = false;
       state.currentGame.running = true;
@@ -162,14 +179,39 @@ export default createStore({
   },
   actions: {
     syncScore(store) {
-      console.log("Syncing Scores...");
       const score = toRaw(store.getters.getScore);
       const gameId = toRaw(store.getters.getGameID);
-      const updateURL = process.env.VUE_APP_BACKEND_DOMAIN + '/api/game/' + gameId + '/score'
-      axios.put(updateURL, score);
+
+      console.log("Syncing Scores... (GameID" + gameId +")");
+      const message = {
+        gameId: gameId,
+        score: score,
+      }
+      let connection = store.getters.getConnection;
+      console.log(connection);
+
+      connection.send(JSON.stringify(message));
+    },
+    createWSConn(store) {
+      console.log("Score aufgerufen");
+      const gameID = toRaw(store.getters.getGameID);
+      let connection = new WebSocket("ws://192.168.0.199:3000/game/" + gameID);
+
+      connection.addEventListener("message", (event) => {
+        console.log("A new message has been received");
+        const data = JSON.parse(event.data);
+        console.log(data);
+        store.commit("updateScore", data.scores);
+      })
+  
+      connection.onopen = function(event) {
+        console.log(event)
+        console.log("Successfully connected to the echo websocket server...")
+      }
+
+      store.commit("setConnection", connection);
     }
   },
   plugins: [createPersistedState()],
-  modules: {
-  }
+  modules: {}
 })

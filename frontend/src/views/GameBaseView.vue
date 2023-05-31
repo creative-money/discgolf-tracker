@@ -47,35 +47,19 @@ export default {
     holes() {
       return JSON.parse(JSON.stringify(this.$store.state.currentGame));
     },
-    gameId() {
-      return this.$store.state.currentGame.gameId;
-    },
+
     activeGame() {
-      return this.$store.getters.hasActiveGame;
+      return true;//this.$store.getters.hasActiveGame;
     },
     gameLoaded() {
-      return this.$store.getters.gameLoaded;
-    },
-  },
-  methods: {
-    async reloadGame(gameId) {
-      if (gameId.length < 5) {
-        this.gameIdFeedback = "This Game ID is too short";
-      } else {
-        // end game that was present before...
-        this.$store.commit("endGame");
-      }
+      return true; //his.$store.getters.gameLoaded;
     },
   },
   mounted() {
     console.log("Neues Baseview.");
   },
   created() {
-    console.log("Game ID:" + this.$route.params.gameId);
-    if ((!this.activeGame && this.$route.params.gameId != undefined) || this.gameId != this.$route.params.gameId) {
-      // load game from db :)
-      this.reloadGame(this.$route.params.gameId);
-    }
+    this.$store.commit("setGameId", this.$route.params.gameId);
   },
 };
 </script>

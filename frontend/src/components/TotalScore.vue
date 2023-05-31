@@ -10,7 +10,7 @@ export default {
   props: ["playerName"],
   computed: {
     totalScore() {
-      return this.$store.getters.getTotalForPlayer(this.playerName);
+      return; // this.$store.getters.getTotalForPlayer(this.playerName);
     },
   },
 };
