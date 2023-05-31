@@ -191,7 +191,10 @@ export default createStore({
       let connection = store.getters.getConnection;
       console.log(connection);
 
-      connection.send(JSON.stringify(message));
+      // ... check if connection is ok
+      if (connection.readyState !== WebSocket.CLOSED) {
+        connection.send(JSON.stringify(message));
+      }
     },
     createWSConn(store) {
       const gameID = toRaw(store.getters.getGameID);
