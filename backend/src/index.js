@@ -48,7 +48,7 @@ const app = express();
 
 let server;
 // depending on ssl situation, host accordingly
-if (process.env.CERT_FILE && process.env.PEM_FILE) {
+if (process.env.KEY_FILE && process.env.CERT_FILE) {
   try {
     server = https.createServer({
       key: fs.readFileSync(process.env.KEY_FILE),
