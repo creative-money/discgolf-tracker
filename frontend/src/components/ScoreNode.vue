@@ -9,10 +9,13 @@
     @blur="outOfFocus"
     min="0"
     max="20"
+    :key="refresh"
   />
 </template>
 
 <script>
+import {ref} from 'vue'
+
 export default {
   props: ["initialScore", "row", "player"],
   data() {
@@ -20,6 +23,7 @@ export default {
       score: 0,
       playername: "",
       currentRow: 0,
+      refresh: ref(0)
     };
   },
   created() {
@@ -71,12 +75,13 @@ export default {
       if (this.score == 0) {
         this.score = null;
       }
-      this.$store.commit("setCurrentlyEditingScoreNode", true);
-      await this.Sleep(10000);
-      if (this.currentlyEditingScoreNode) {
-        console.log("Not editing Node anymore if you know what I mean..");
-        this.$store.commit("setCurrentlyEditingScoreNode", false);
-      }
+      refresh.value += 1
+      // this.$store.commit("setCurrentlyEditingScoreNode", true);
+      // await this.Sleep(10000);
+      // if (this.currentlyEditingScoreNode) {
+      //   console.log("Not editing Node anymore if you know what I mean..");
+      //   this.$store.commit("setCurrentlyEditingScoreNode", false);
+      // }
     },
     Sleep(milliseconds) {
       return new Promise((resolve) => setTimeout(resolve, milliseconds));

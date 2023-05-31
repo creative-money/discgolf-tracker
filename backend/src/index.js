@@ -47,7 +47,7 @@ const app = express();
 const server = http.createServer(app);
 
 const wss = new WebSocket.Server({ server });
-
+ 
 app.use(cors())
 app.use(express.json())
 
@@ -131,6 +131,11 @@ wss.on('connection', async (ws, req) => {
   ws.send('Hi there, I am a WebSocket server');
 });
 
+app.get('/api/game/:gameId', async (req, res) => {
+  const { gameId } = req.params;
+  const game = await getGameInfo(gameId);
+  res.json(game);
+});
 
 app.post(`/api/signup`, async (req, res) => {
   const { name, email } = req.body

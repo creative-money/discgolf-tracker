@@ -103,6 +103,8 @@ export default createStore({
         let gameId = response.data.name;
         let scores = response.data.scores;
 
+        console.log('CURRY GAME:',state.currentGame)
+
         currentPlayers.forEach(player => {
           let playerName = player.player.name;
           state.currentGame.playerNames.push(playerName);

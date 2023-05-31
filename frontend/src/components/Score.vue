@@ -76,6 +76,7 @@
 import ScoreNode from "@/components/ScoreNode.vue";
 import TotalScore from "@/components/TotalScore.vue";
 
+
 export default {
   components: {
     ScoreNode,
@@ -88,11 +89,9 @@ export default {
   },
   async created() {
     console.log("Score aufgerufen");
-    this.connection = new WebSocket("ws://localhost:3000/game/" + this.gameId);
+    this.connection = new WebSocket("ws://192.168.0.185:3000/game/" + this.gameId);
 
-    this.connection.onmessage = function(event) {
-      console.log('HALLOOOO ',event);
-    }
+    this.connection.onmessage = this.incomingMessage(event)
 
     this.connection.onopen = function(event) {
       console.log(event)
@@ -111,6 +110,12 @@ export default {
       }
       this.connection.send(JSON.stringify(message));
     },
+    incomingMessage(event){
+      console.log('HALLOOOO ',event);
+      let x = JSON.parse(event.target.response)
+      console.log('THE X', x)
+      this.$store.commit("updateScore", x.scores)
+    }
   },
   computed: {
     score() {
