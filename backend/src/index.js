@@ -32,7 +32,7 @@ async function getGameInfo(gameId) {
   return game;
 }
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
@@ -40,11 +40,23 @@ const { Prisma } = require('@prisma/client');
 const cors = require('cors');
 const { WebSocket } = require("ws");
 const http = require("http");
-
+const https = require("https");
+const fs = require('fs');
 
 const client = new PrismaClient();
 const app = express();
-const server = http.createServer(app);
+
+let server;
+// depending on ssl situation, host accordingly
+if (process.env.CERT_FILE && process.env.PEM_FILE) {
+  server = https.createServer({
+    key: fs.readFileSync(process.env.PEM_FILE),
+    cert: fs.readFileSync(process.env.CERT_FILE)
+  }, app);
+}
+else {
+  server = http.createServer(app);
+}
 
 const wss = new WebSocket.Server({ server });
  
@@ -364,5 +376,5 @@ app.get('/api/users', async (req, res) => {
 
 server.listen(process.env.PORT || PORT, () =>
   console.log(`
-🚀 Server ready at: http://localhost:3000`),
+🚀 Server ready at: http://localhost:${process.env.PORT || PORT}`),
 )
