@@ -22,6 +22,7 @@ export default createStore({
       playerNames: [],
       name: '',
       holes: 0,
+      scoreVersion: 0,
     },
     language: {
       currentLocale: '',
@@ -59,7 +60,7 @@ export default createStore({
         });
         return totalScore;
       }
-      catch(e) {
+      catch (e) {
         console.log(e);
         console.log("Could not calc total score");
       }
@@ -93,20 +94,20 @@ export default createStore({
       // prepare users and course information to provide to backend
       let players = toRaw(state.players);
       let users = [];
-
+  
       let n = 0;
-
+  
       while (n < players.length) {
         let player = players[n];
         users.push({ name: player.username });
         n++;
       }
-
+  
       let course = {
         name: state.game.name,
         holes: state.game.holes,
       }
-
+  
       axios.post(process.env.VUE_APP_BACKEND_DOMAIN + "/api/game", {
         users: users,
         course: course,
@@ -116,14 +117,14 @@ export default createStore({
         let courseName = response.data.course.name;
         let gameId = response.data.name;
         let scores = response.data.scores;
-
-        console.log('CURRY GAME:',state.currentGame)
-
+  
+        console.log('CURRY GAME:', state.currentGame)
+  
         currentPlayers.forEach(player => {
           let playerName = player.player.name;
           state.currentGame.playerNames.push(playerName);
         });
-
+  
         // update state at the end...
         state.currentGame.holes = holes;
         state.currentGame.scores = scores;
@@ -148,6 +149,9 @@ export default createStore({
     updateScore(state, newScore) {
       state.currentGame.scores = newScore;
     },
+    updateScoreVersion(state, version) {
+      state.currentGame.scoreVersion = Number(version);
+    },
     setConnection(state, conn) {
       state.connection = conn
     },
@@ -156,12 +160,12 @@ export default createStore({
       state.currentGame.loaded = false;
       state.currentGame.running = true;
       state.currentGame.gameId = data.name;
-
+  
       // set playerNames:
       data.Players.forEach(player => {
         state.currentGame.playerNames.push(player.player.name);
       });
-
+  
       state.currentGame.name = data.course.name;
       state.currentGame.holes = data.course.holes;
       state.currentGame.loaded = true;
@@ -182,17 +186,19 @@ export default createStore({
     syncScore(store) {
       const score = toRaw(store.getters.getScore);
       const gameId = toRaw(store.getters.getGameID);
-
-      console.log("Syncing Scores... (GameID" + gameId +")");
+      const version = toRaw(store.state.currentGame.scoreVersion);
+  
+      console.log("Syncing Scores... (GameID" + gameId + ")");
       const message = {
-        gameId: gameId,
-        score: score,
+        gameId,
+        score,
+        version,
       }
-      let connection = store.getters.getConnection;
-      console.log(connection);
-
+      const connection = store.getters.getConnection;
+  
       // ... check if connection is ok
       if (connection.readyState !== WebSocket.CLOSED) {
+        console.log("Connection is okay... sending message...");
         connection.send(JSON.stringify(message));
       }
     },
@@ -206,29 +212,31 @@ export default createStore({
           this.gameIdFeedback = "This Game ID is unknown";
         } else {
           let score = res.data.scores;
-
+  
           console.log(score);
           // start game...
           store.commit("loadGame", res.data);
+          store.commit("updateScoreVersion", res.data.scoreVersion);
         }
       }).catch(e => {
         console.log(e);
       })
       console.log("Score aufgerufen");
-      let connection = new WebSocket("ws://"+bD.substring(Number(bD.indexOf("://")) + 3)+"/game/" + gameID);
-
+      let connection = new WebSocket("ws://" + bD.substring(Number(bD.indexOf("://")) + 3) + "/game/" + gameID);
+  
       connection.addEventListener("message", (event) => {
         console.log("A new message has been received");
         const data = JSON.parse(event.data);
         console.log(data);
+        store.commit("updateScoreVersion", data.scoreVersion);
         store.commit("updateScore", data.scores);
       })
   
-      connection.onopen = function(event) {
+      connection.onopen = function (event) {
         console.log(event)
         console.log("Successfully connected to the echo websocket server...")
       }
-
+  
       store.commit("setConnection", connection);
     }
   },
