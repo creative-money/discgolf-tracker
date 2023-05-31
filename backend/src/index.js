@@ -51,7 +51,7 @@ let server;
 if (process.env.CERT_FILE && process.env.PEM_FILE) {
   try {
     server = https.createServer({
-      key: fs.readFileSync(process.env.PEM_FILE),
+      key: fs.readFileSync(process.env.KEY_FILE),
       cert: fs.readFileSync(process.env.CERT_FILE)
     }, app);
   }
