@@ -46,23 +46,7 @@ export default {
       } else {
         // end game that was present before...
         this.$store.commit("endGame");
-        axios.get(process.env.VUE_APP_BACKEND_DOMAIN + "/api/game/" + this.gameId).then((res) => {
-          if (res.data == null) {
-            this.gameIdFeedback = "This Game ID is unknown";
-          } else {
-            let score = res.data.scores;
-
-            console.log(score);
-            // save score to store :)
-            this.$store.commit("updateScore", score);
-
-            // start game...
-            this.$store.commit("loadGame", res.data);
-
-            // go to game...
-            this.$router.push("game");
-          }
-        });
+        this.$router.push("/game/" + this.gameId);
       }
     },
   },

@@ -152,6 +152,7 @@ export default createStore({
       state.connection = conn
     },
     loadGame(state, data) {
+      state.currentGame.playerNames = [];
       state.currentGame.loaded = false;
       state.currentGame.running = true;
       state.currentGame.gameId = data.name;
@@ -193,9 +194,25 @@ export default createStore({
       connection.send(JSON.stringify(message));
     },
     createWSConn(store) {
-      console.log("Score aufgerufen");
       const gameID = toRaw(store.getters.getGameID);
-      let connection = new WebSocket("ws://192.168.0.199:3000/game/" + gameID);
+      const bD = String(process.env.VUE_APP_BACKEND_DOMAIN);
+      axios.get(bD + "/api/game/" + gameID).then((res) => {
+        console.log("Getter Response");
+        console.log(res.data);
+        if (res.data == null) {
+          this.gameIdFeedback = "This Game ID is unknown";
+        } else {
+          let score = res.data.scores;
+
+          console.log(score);
+          // start game...
+          store.commit("loadGame", res.data);
+        }
+      }).catch(e => {
+        console.log(e);
+      })
+      console.log("Score aufgerufen");
+      let connection = new WebSocket("ws://"+bD.substring(Number(bD.indexOf("://")) + 3)+"/game/" + gameID);
 
       connection.addEventListener("message", (event) => {
         console.log("A new message has been received");

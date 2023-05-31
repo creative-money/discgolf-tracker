@@ -14,7 +14,7 @@
             :value="qrCodeValue"
           />
         </div>
-        <p>GameID: {{ gameId }}</p>
+        <p>GameID: {{ $route.params.gameId }}</p>
       </div>
     </div>
     <div v-else>
@@ -42,7 +42,7 @@ export default {
   },
   computed: {
     qrCodeValue() {
-      return process.env.VUE_APP_FRONTEND_DOMAIN + "/game/" + this.gameId;
+      return process.env.VUE_APP_FRONTEND_DOMAIN + "/game/" + this.$route.params.gameId;
     },
     holes() {
       return JSON.parse(JSON.stringify(this.$store.state.currentGame));
