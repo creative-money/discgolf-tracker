@@ -23,14 +23,15 @@ model UserGames {
 }
 
 model Game {
-  id         Int         @id @default(autoincrement())
-  name       String      @unique
-  Players    UserGames[]
-  course     Course      @relation(fields: [courseId], references: [id])
-  courseId   Int
-  startedAt  DateTime    @default(now())
-  scores     Json?
-  lastUpdate DateTime    @updatedAt
+  id           Int         @id @default(autoincrement())
+  name         String      @unique
+  Players      UserGames[]
+  course       Course      @relation(fields: [courseId], references: [id])
+  courseId     Int
+  startedAt    DateTime    @default(now())
+  scores       Json?
+  scoreVersion Int         @default(0)
+  lastUpdate   DateTime    @updatedAt
 }
 
 model Course {
