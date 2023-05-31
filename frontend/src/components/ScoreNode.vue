@@ -70,18 +70,7 @@ export default {
         row: this.currentRow,
       });
 
-      this.syncToServer();
-    },
-    async syncToServer() {
-      this.now = new Date();
-
-      if (!this.syncServerTime) {
-        this.syncServerTime = new Date(this.now.valueOf()).setMilliseconds(this.now.getMilliseconds() + 200);
-      }
-      
-      await this.Sleep(this.syncServerTime.valueOf() - this.now.valueOf());
       this.syncScore();
-      this.syncServerTime = null;
     },
     async prepareForInput() {
       if (this.score == 0) {
