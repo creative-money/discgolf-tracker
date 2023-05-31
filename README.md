@@ -7,7 +7,7 @@ This Instruction will focus first on players, then on development.
 ### About the Software (For Players):
 An easy to use digital scoresheet. One player creates a game and other players join it, most easily, by scanning the other player's QR Code.
 Then, a scoresheet will be visible where the scores can be updated on every device. When one player updates the data, it is transmitted in realtime to the other players. <br>
-If you just want to play a game of discgolf with your friends, go to https://discgolf-tracker.com where this software is hosted.
+If you just want to play a game of discgolf with your friends, go to http://discgolf-tracker.com where this software is hosted.
 
 --- 
 
