@@ -222,21 +222,7 @@ export default createStore({
         console.log(e);
       })
       console.log("Score aufgerufen");
-      let connection = new WebSocket("ws://" + bD.substring(Number(bD.indexOf("://")) + 3) + "/game/" + gameID);
-  
-      connection.addEventListener("message", (event) => {
-        console.log("A new message has been received");
-        const data = JSON.parse(event.data);
-        console.log(data);
-        store.commit("updateScoreVersion", data.scoreVersion);
-        store.commit("updateScore", data.scores);
-      })
-  
-      connection.onopen = function (event) {
-        console.log(event)
-        console.log("Successfully connected to the echo websocket server...")
-      }
-  
+      let connection = new WebSocket("ws://" + bD.substring(Number(bD.indexOf("://")) + 3) + "/game/" + gameID);  
       store.commit("setConnection", connection);
     }
   },

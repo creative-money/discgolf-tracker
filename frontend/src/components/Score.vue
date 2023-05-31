@@ -88,6 +88,20 @@ export default {
   },
   async created() {
     this.$store.dispatch("createWSConn");
+    const connection = this.$store.getters.getConnection;
+
+    connection.addEventListener("message", (event) => {
+        console.log("A new message has been received");
+        const data = JSON.parse(event.data);
+        console.log(data);
+        this.$store.commit("updateScoreVersion", data.scoreVersion);
+        this.$store.commit("updateScore", data.scores);
+      })
+  
+      connection.onopen = function (event) {
+        console.log(event)
+        console.log("Successfully connected to the echo websocket server...")
+      }
   },
   methods: {
     Sleep(milliseconds) {

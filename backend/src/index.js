@@ -101,8 +101,6 @@ wss.on('connection', async (ws, req) => {
       }
 
       // check if the incoming version seems up to date
-
-
       const updatedGameObj = await client.game.updateMany({
         where: {
           name: currentGameID,
@@ -123,7 +121,6 @@ wss.on('connection', async (ws, req) => {
         console.log("Game was updated: " + Number(data.version));
       }
 
-
       const updatedGame = await client.game.findUnique({
         where: {
           name: currentGameID
@@ -136,14 +133,14 @@ wss.on('connection', async (ws, req) => {
         const conn = allWsConns[i].ws; // for readability
 
         if (conn.readyState === WebSocket.OPEN) {
-
           if (allWsConns[i].gameID == currentGameID) {
             // save info to db and send answer to client
-            return conn.send(JSON.stringify(updatedGame));
+            conn.send(JSON.stringify(updatedGame));
           }
         }
-        else {
+        else if (conn.readyState === WebSocket.CLOSED) {
           // drop it like it's hot
+          console.log("Dropping connection");
           allWsConns.splice(i, 1);
         }
       }
