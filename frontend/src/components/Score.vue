@@ -88,10 +88,10 @@ export default {
   },
   async created() {
     console.log("Score aufgerufen");
-    this.connection = new WebSocket("ws://192.168.0.199:3000/game/" + this.gameId);
+    this.connection = new WebSocket("ws://localhost:3000/game/" + this.gameId);
 
     this.connection.onmessage = function(event) {
-      console.log(event);
+      console.log('HALLOOOO ',event);
     }
 
     this.connection.onopen = function(event) {
