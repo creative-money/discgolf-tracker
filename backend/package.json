@@ -6,7 +6,7 @@
     "start": "node src/index.js --host 0.0.0.0",
     "mon": "nodemon server",
     "deploylogs": "node src/index.js --host 0.0.0.0 > app.log 2>&1",
-    "foreverlogs": "forever src/index.js > app.log 2>&1"
+    "foreverlogs": "forever start src/index.js > app.log 2>&1"
   },
   "dependencies": {
     "@prisma/client": "4.14.1",
